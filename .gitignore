@@ -1,0 +1,15 @@
+/target
+/classes
+/checkouts
+tools/feeds/test
+*.jar
+*.swp
+*.clj~
+*.pyc
+__pycache__
+/.lein-*
+/.nrepl-port
+log/
+!log/readme.txt
+\#*\#
+\.\#*
