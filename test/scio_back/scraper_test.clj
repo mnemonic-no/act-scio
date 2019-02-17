@@ -1,6 +1,5 @@
 (ns scio-back.scraper-test
   (:require [clojure.test :refer :all]
-            [clojure.string]
             [scio-back.scraper :refer :all]
             [scio-back.core :refer [read-config]]))
 
@@ -14,6 +13,14 @@
     %2ftwitter.com
     %2Ftwitter.com
     127.0.0.1
+    ftp://files.example.com
+    https://www.vg.no/index.html?q=news#top
+    http://1.2.3.4/5-index.html
+    http://2.3.4.5/
+    http://3.4.5.6
+    4.5.6.7/gurba
+    5.6.7.8/9
+    6.7.8.9/10
     CVE-1991-1234
     CVE-1992-12345
     CVE-1993-123456
@@ -49,13 +56,19 @@
       (is  (= (:email indicators) '("user@fastmail.fm"))))
 
     (testing "scrape ipv4 lowercase"
-      (is  (= (:ipv4 indicators) '("127.0.0.1"))))
+      (is  (= (:ipv4 indicators) '("127.0.0.1" "1.2.3.4" "2.3.4.5" "3.4.5.6" "4.5.6.7"))))
+
+    (testing "scrape ipv4net"
+      (is (= (:ipv4net indicators) '("5.6.7.8/9" "6.7.8.9/10"))))
 
     (testing "scrape fqdn lowercase"
-      (is  (= (:fqdn indicators) '("chessbase.com" "chessbase.com" "twitter.com" "twitter.com" "twitter.com" "www.nytimes3xbfgragh.onion" "fastmail.fm" "www.mnemonic.no"))))
+      (is  (= (:fqdn indicators) '("chessbase.com" "chessbase.com" "twitter.com" "twitter.com" "twitter.com" "files.example.com" "www.vg.no" "www.nytimes3xbfgragh.onion" "fastmail.fm" "www.mnemonic.no"))))
 
     (testing "scrape ipv6 lowercase"
       (is  (= (:ipv6 indicators) '("fe80::ea39:35ff:fe12:2d71"))))
+
+    (testing "scrape uri"
+      (is (= (:uri indicators) '("ftp://files.example.com" "https://www.vg.no/index.html?q=news#top" "http://1.2.3.4/5-index.html" "http://2.3.4.5" "http://3.4.5.6"))))
 
     (testing "scrape cve lowercase"
       (is (= (:cve indicators) '("cve-1991-1234" "cve-1992-12345" "cve-1993-123456" "cve-1994-1234567"))))))

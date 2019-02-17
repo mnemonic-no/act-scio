@@ -20,13 +20,45 @@
 
 (defnex fqdn #"[a-zA-Z0-9\.\-]+\.[a-zA-Z0-9\.\-]+")
 (defnex md5 #"\b[0-9a-fA-F]{32}\b")
-(defnex ipv4 #"\b[0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9]\b")
 (defnex sha1 #"\b[.0-9a-fA-F]{40}\b")
 (defnex sha256 #"\b[.0-9a-fA-F]{64}\b")
 (defnex email #"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}\b")
 (defnex ipv6 #"[a-fA-F0-9:.]+")
 (defnex cve #"(?:CVE|cve)-\d{4}-\d{4,7}")
 (defnex ms #"(?:MS|ms)\d{2}-\d+")
+(defnex uri #"[a-zA-Z]*:\/\/.*\b")
+
+(def ip-re-string #"([a-zA-Z]*:\/\/)?\b([0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9])(\/\d{1,2})?\b")
+
+(def not-nil? (complement nil?))
+
+(defn- ipv4-re-with-names
+  "Return a list of named groups matching ip-re-string"
+  [text]
+  (map #(zipmap [:full :scheme :ip :mask] %)
+       (re-seq ip-re-string text)))
+
+(defn raw-text->ipv4
+  "Extract all ipv4 addresses where the meaning is a single address"
+  [text]
+  (let [found (ipv4-re-with-names text)
+        ;; extract all matches where there is an ip _and_ a scheme (part of uri)
+        ;; and also all matches where there are NO scheme and NO mask (not part of ipv4net)
+        relevant (filter #(or (and (not-nil? (:scheme %)) (not-nil? (:ip %)))
+                              (and (nil? (:scheme %)) (nil? (:mask %)) (not-nil? (:ip %))))
+                         found)]
+    (map :ip relevant))) ;; return only ip part of match
+
+(defn raw-text->ipv4net
+  "Extract all ipv4 networks"
+  [text]
+  (let [found (ipv4-re-with-names text)
+        relevant (filter #(and (not-nil? (:ip %))
+                               (not-nil? (:mask %))
+                               (nil? (:scheme %)))
+                         found)]
+    (map :full relevant)))
+  
 
 (defn- tld-pattern
   "return re pattern matching ends with tld"
@@ -68,5 +100,7 @@
      :msid (raw-text->ms soft-text)
      :email (raw-text->email soft-text)
      :ipv4 (raw-text->ipv4 soft-text)
+     :ipv4net (raw-text->ipv4net soft-text)
      :ipv6 (filter validator/ipv6-form? (raw-text->ipv6 soft-text))
+     :uri (raw-text->uri soft-text)
      :fqdn (filter (partial ends-in-tld? tlds) (raw-text->fqdn soft-text))}))
