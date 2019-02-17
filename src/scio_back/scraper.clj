@@ -30,8 +30,6 @@
 
 (def ip-re-string #"([a-zA-Z]*:\/\/)?\b([0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9])(\/\d{1,2})?\b")
 
-(def not-nil? (complement nil?))
-
 (defn- ipv4-re-with-names
   "Return a list of named groups matching ip-re-string"
   [text]
@@ -44,8 +42,8 @@
   (let [found (ipv4-re-with-names text)
         ;; extract all matches where there is an ip _and_ a scheme (part of uri)
         ;; and also all matches where there are NO scheme and NO mask (not part of ipv4net)
-        relevant (filter #(or (and (not-nil? (:scheme %)) (not-nil? (:ip %)))
-                              (and (nil? (:scheme %)) (nil? (:mask %)) (not-nil? (:ip %))))
+        relevant (filter #(or (and (:scheme %) (:ip %))
+                              (and (nil? (:scheme %)) (nil? (:mask %)) (:ip %)))
                          found)]
     (map :ip relevant))) ;; return only ip part of match
 
@@ -53,8 +51,8 @@
   "Extract all ipv4 networks"
   [text]
   (let [found (ipv4-re-with-names text)
-        relevant (filter #(and (not-nil? (:ip %))
-                               (not-nil? (:mask %))
+        relevant (filter #(and (:ip %)
+                               (:mask %)
                                (nil? (:scheme %)))
                          found)]
     (map :full relevant)))
