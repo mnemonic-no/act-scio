@@ -1,4 +1,4 @@
-(defproject scio-back "0.1.38-SNAPSHOT"
+(defproject scio-back "0.1.39-SNAPSHOT"
   :description "Storing tweets and documents to alastic search for indexing."
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.apache.commons/commons-compress "1.13"] ;; "fix" for missing class in pantomime
