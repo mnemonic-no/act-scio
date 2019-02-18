@@ -4,32 +4,32 @@
             [scio-back.core :refer [read-config]]))
 
 (def test-text-lowercase "
-    md5: be5ee729563fa379e71d82d61cc3fdcf
-    sha256: 103cb6c404ba43527c2deac40fbe984f7d72f0b2366c0b6af01bd0b4f1a30c74
-    sha1: 3c07cb361e053668b4686de6511d6a904a9c4495
-    %2fchessbase.com
-    %2Fchessbase.com
-    twitter.com
-    %2ftwitter.com
-    %2Ftwitter.com
-    127.0.0.1
-    ftp://files.example.com
-    https://www.vg.no/index.html?q=news#top
-    http://1.2.3.4/5-index.html
-    http://2.3.4.5/
-    http://3.4.5.6
-    4.5.6.7/gurba
-    5.6.7.8/9
-    6.7.8.9/10
-    CVE-1991-1234
-    CVE-1992-12345
-    CVE-1993-123456
-    CVE-1994-12
-    CVE-1994-1234567
-    www.nytimes3xbfgragh.onion
-    fe80::ea39:35ff:fe12:2d71/64
+    md5: be5ee729563fa379e71d82d61cc3fdcf lorem ipsum
+    sha256: 103cb6c404ba43527c2deac40fbe984f7d72f0b2366c0b6af01bd0b4f1a30c74 lorem ipsum
+    sha1: 3c07cb361e053668b4686de6511d6a904a9c4495 lorem ipsum 
+    %2fchessbase.com lorem ipsum
+    %2Fchessbase.com lorem ipsum
+    twitter.com lorem ipsum
+    %2ftwitter.com lorem ipsum
+    %2Ftwitter.com lorem ipsum
+    127.0.0.1 lorem ipsum
+    ftp://files.example.com lorem ipsum
+    https://www.vg.no/index.html?q=news#top lorem / ipsum
+    HTTP://1.2.3.4/5-index.html / lorem ipsum 
+    http://2.3.4.5/ lorem / ipsum 
+    http://3.4.5.6 lorem ipsum
+    4.5.6.7/gurba lorem ipsum
+    5.6.7.8/9 lorem ipsum
+    6.7.8.9/10 lorem ipsum
+    CVE-1991-1234 lorem ipsum
+    CVE-1992-12345 lorem ipsum
+    CVE-1993-123456 lorem ipsum 
+    CVE-1994-12 lorem ipsum
+    CVE-1994-1234567 lorem ipsum
+    www.nytimes3xbfgragh.onion lorem ipsum
+    fe80::ea39:35ff:fe12:2d71/64 lorem ipsum
     The mail address user@fastmail.fm is not real
-    www.mnemonic.no")
+    www.mnemonic.no") 
 
 (def test-text-uppercase
   (clojure.string/upper-case test-text-lowercase))
@@ -68,7 +68,7 @@
       (is  (= (:ipv6 indicators) '("fe80::ea39:35ff:fe12:2d71"))))
 
     (testing "scrape uri"
-      (is (= (:uri indicators) '("ftp://files.example.com" "https://www.vg.no/index.html?q=news#top" "http://1.2.3.4/5-index.html" "http://2.3.4.5" "http://3.4.5.6"))))
+      (is (= (:uri indicators) '("ftp://files.example.com" "https://www.vg.no/index.html?q=news#top" "http://1.2.3.4/5-index.html" "http://2.3.4.5/" "http://3.4.5.6"))))
 
     (testing "scrape cve lowercase"
       (is (= (:cve indicators) '("cve-1991-1234" "cve-1992-12345" "cve-1993-123456" "cve-1994-1234567"))))))

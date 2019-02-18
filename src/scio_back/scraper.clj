@@ -26,7 +26,13 @@
 (defnex ipv6 #"[a-fA-F0-9:.]+")
 (defnex cve #"(?:CVE|cve)-\d{4}-\d{4,7}")
 (defnex ms #"(?:MS|ms)\d{2}-\d+")
-(defnex uri #"[a-zA-Z]*:\/\/.*\b")
+
+(def uri-re-string #"(?<scheme>[a-zA-Z][a-zA-Z\d+-.]*):\/\/(?:(?:(?<username>[a-zA-Z\d\-._~\!$&'()*+,;=%]*)(?::(?<credential>[a-zA-Z\d\-._~\!$&'()*+,;=:%]*))?)@)?(?:(?<ipv4>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})|(?<ipv6>\[(?:[a-fA-F\d.:]+)\])|(?<fqdn>[a-zA-Z\d-.%]+))?(?::(?<port>\d{1,5}))?(?<path>(?:\/(?:[a-zA-Z\d\-._~\!$&'()*+,;=:@%]*\/)*(?<basename>[a-zA-Z\d\-._~\!$&'()*+,;=:@%]*))?)(?:\?(?<query>[a-zA-Z\d\-._~\!$&'()*+,;=:@%\/?]*))?(?:\#(?<fragment>[a-zA-Z\d\-._~\!$&'()*+,;=:@%\/?]*))?")
+
+(defn raw-text->uri
+  "Extract all uri from a raw text"
+  [text]
+  (map #(get % 0) (re-seq uri-re-string text)))
 
 (def ip-re-string #"([a-zA-Z]*:\/\/)?\b([0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9])(\/\d{1,2})?\b")
 
