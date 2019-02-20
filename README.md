@@ -10,7 +10,7 @@ The scio platform uses the beanstalkd mq. This must be installed and running
 
 ```bash
 git clone https://github.com/mnemonic-no/act-scio.git
-cd scio
+cd act-scio
 cd etc
 ./geonames_download.sh
 cd ..
