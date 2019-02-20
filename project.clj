@@ -2,7 +2,6 @@
   :description "Storing tweets and documents to alastic search for indexing."
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.apache.commons/commons-compress "1.13"] ;; "fix" for missing class in pantomime
-;;                 [org.apache.tika/tika-parsers "1.16"]
                  [com.novemberain/pantomime "2.9.0"]
                  [info.debatty/java-spamsum "0.2"]
                  [clj-http "3.7.0"]
