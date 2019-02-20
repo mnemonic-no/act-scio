@@ -1,30 +1,34 @@
 (ns scio-back.doc
-  (:import [info.debatty.java.spamsum SpamSum])
   (:require
-   [scio-back.tag :as tag]
-   [scio-back.es :as es]
-   [pantomime.extract :as extract]
-   [scio-back.nlp :as nlp]
-   [scio-back.scraper :as scraper]
-   [clojure-ini.core :as ini]
-   [clojure.set :refer [difference]]
-   [clojure.core.async :as a :refer  [>!! <!! chan thread]]
-   [clojure.data.json :as json]
-   [clojure.java.io :as io]
-   [clojure.stacktrace :as stacktrace]
-   [clojure.tools.logging :as log]
-   [digest]
-   [me.raynes.fs :as fs]
-   [beanstalk-clj.core :refer [with-beanstalkd beanstalkd-factory
-                               put delete reserve
-                               watch-tube use-tube]]))
+    [scio-back.tag :as tag]
+    [scio-back.es :as es]
+    [pantomime.extract :as extract]
+    [scio-back.nlp :as nlp]
+    [scio-back.scraper :as scraper]
+    [clojure-ini.core :as ini]
+    [clojure.set :refer [difference]]
+    [clojure.core.async :as a :refer [>!! <!! chan thread]]
+    [clojure.data.json :as json]
+    [clojure.java.io :as io]
+    [clojure.stacktrace :as stacktrace]
+    [clojure.tools.logging :as log]
+    [digest]
+    [me.raynes.fs :as fs]
+    [beanstalk-clj.core :refer [with-beanstalkd beanstalkd-factory
+                                put delete reserve
+                                watch-tube use-tube]])
+  (:import [info.debatty.java.spamsum SpamSum]
+           (java.util TimeZone Date)
+           (java.text SimpleDateFormat)
+           (java.io ByteArrayOutputStream FileNotFoundException)
+           (java.util.concurrent TimeUnit TimeoutException)))
 
 
 (defmacro with-timeout [millis name & body]
   `(let [future# (future ~@body)]
      (try
-       (.get future# ~millis java.util.concurrent.TimeUnit/MILLISECONDS)
-       (catch java.util.concurrent.TimeoutException x#
+       (.get future# ~millis TimeUnit/MILLISECONDS)
+       (catch TimeoutException x#
          (do
            (future-cancel future#)
            (log/error (str ~name " " "Timed out"))
@@ -34,9 +38,9 @@
 
 (defn iso-date-string
   []
-  (let [tz (java.util.TimeZone/getTimeZone "UTC")
-        df (java.text.SimpleDateFormat. "yyyy-MM-dd'T'HH:mm'Z'")
-        now (java.util.Date.)]
+  (let [tz (TimeZone/getTimeZone "UTC")
+        df (SimpleDateFormat. "yyyy-MM-dd'T'HH:mm'Z'")
+        now (Date.)]
     (.format (doto df
                (.setTimeZone tz))
              now)))
@@ -182,10 +186,10 @@
   "Slurp the bytes from a slurpable thing"
   [x]
   (try
-    (with-open [out (java.io.ByteArrayOutputStream.)]
+    (with-open [out (ByteArrayOutputStream.)]
       (clojure.java.io/copy (clojure.java.io/input-stream x) out)
       (.toByteArray out))
-    (catch java.io.FileNotFoundException e
+    (catch FileNotFoundException e
       (log/warn (str  "Could not read:" x))
       nil)))
 

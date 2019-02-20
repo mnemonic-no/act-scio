@@ -2,20 +2,18 @@
   (:require
    [scio-back.doc :as doc]
    [scio-back.cli :as cli]
-   [clojure-ini.core :as ini]
-   [clojure.core.async :as a :refer  [<!! chan thread]]
-   [clojure.data.json :as json]
-   [clojure.tools.logging :as log])
+   [clojure-ini.core :as ini])
   (:gen-class))
 
-(def config-path "/etc/scio.ini")
+(def default-options {:config "/etc/scio.ini"})
 
 (defn read-config
   "Reads a ini config from commandline options or loads default"
-  [{:keys [config]}]
-  (if (some? config)
-    (ini/read-ini config :keywordize? true)
-    (read-config {:config config-path})))
+  ([] (read-config default-options))
+  ([{:keys [config]}]
+   (if (some? config)
+     (ini/read-ini config :keywordize? true)
+     (read-config default-options))))
 
 (defn main-loop
   "Connecting to work-queue and launching the document handler."
