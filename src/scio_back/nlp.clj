@@ -3,8 +3,7 @@
             [opennlp.tools.filters]
             [opennlp.treebank]
             [clojure.spec.alpha :as s]
-            [scio-back.specs :as specs])
-  (:import (java.io File)))
+            [scio-back.specs :as specs]))
 
 
 (defmacro defnex
@@ -61,7 +60,7 @@
       elements)))
 
 (defn drop-en-trailing-conjunction
-  "remove the last form from the elemts if it is a coordinating conjunction"
+  "remove the last form from the elements if it is a coordinating conjunction"
   [elements]
   {:pre [(s/assert (s/coll-of string?) elements)]
    :post [(s/assert (s/coll-of string?) %)]}

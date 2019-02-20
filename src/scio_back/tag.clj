@@ -154,7 +154,7 @@
     (apply union (map expand-alias threat-actors))))
 
 (defn location-aliases
-  "Create a tag list of locations from a liast of possible locations"
+  "Create a tag list of locations from a list of possible locations"
   [file-name tag-list]
   (let [lcase-tag-list (map compact-and-lowercase tag-list)
         aliases (map-file parse-location-alias-line file-name)
@@ -189,7 +189,7 @@
          set)))
 
 (defn locations
-  "Create a tag list of locations from a liast of possible locations"
+  "Create a tag list of locations from a list of possible locations"
   [file-name tag-list]
   (let [lcase-tag-list (map compact-and-lowercase tag-list)
         aliases (map-file parse-location-alias-line file-name)
@@ -219,7 +219,7 @@
     (set (flatten (map mangle-index threat-actors)))))
 
 (defn alias->regex
-  "Take an alias and build a regex matching on both name and alises"
+  "Take an alias and build a regex matching on both name and alases"
   [alias]
   (let [wordlist (cons (:name alias) (:aliases alias))
         proto-pattern (clojure.string/join "|" wordlist)]
@@ -236,8 +236,8 @@
             []
             tool-aliases)))
 
-;; -- sector extraction
 
+;; -- sector extraction
 
 (defn possible-sector?
   "Extract tag list of possible sectors"

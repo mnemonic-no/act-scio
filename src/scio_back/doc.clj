@@ -5,7 +5,6 @@
     [pantomime.extract :as extract]
     [scio-back.nlp :as nlp]
     [scio-back.scraper :as scraper]
-    [clojure-ini.core :as ini]
     [clojure.set :refer [difference]]
     [clojure.core.async :as a :refer [>!! <!! chan thread]]
     [clojure.data.json :as json]
@@ -31,7 +30,7 @@
        (catch TimeoutException x#
          (do
            (future-cancel future#)
-           (log/error (str ~name " " "Timed out"))
+           (log/error (str ~name " Timed out"))
            nil)))))
 
 (def NA '("NA"))
@@ -46,7 +45,7 @@
              now)))
 
 (defn build-data-map
-  "Extract spesific fields from the document. If the document does not contain
+  "Extract specific fields from the document. If the document does not contain
   a 'creation-date' field, the current time is used."
   [doc file-name]
   (-> {}
@@ -60,7 +59,7 @@
       (into {:creator-tool (first (get doc :creator-tool NA))})))
 
 (defn analyse
-  "Analyse file and store result to elasticsearch"
+  "Analyse file and store result to Elasticsearch"
   [file-name cfg sha-256]
   (log/info (str "Starting to analyze " sha-256))
   (try
@@ -138,8 +137,7 @@
       nil)))
 
 (defn start-document-worker
-  "Start a new document worker, listening for jobs on
-  a channel"
+  "Start a new document worker, listening for jobs on a channel"
   [job-channel n]
   (thread
     (while true
@@ -158,14 +156,14 @@
             (log/error (str "Worker " n " FAILED to complete job " sha256))))))))
 
 (defn start-worker-pool
-  "Spin up a pool of n workers listening to job-channel"
+  "Spin up a pool of n workers listening to job channel"
   [job-channel n]
   (do
-    (log/info (str "Starting a worker pool of " n " worker!"))
+    (log/info (str "Starting a worker pool of " n " worker"))
     (doseq [i (range n)]
       (log/info (str "Starting worker " i))
       (start-document-worker job-channel i))
-    (log/info "Worker pool started!")))
+    (log/info "Worker pool started")))
 
 (defn write-file
   "Write file to disk"
@@ -174,7 +172,7 @@
     (.write w content)))
 
 (defn store!
-  "Store a file to disk. If it allready exists; do nothing"
+  "Store a file to disk. If it already exists, do nothing"
   [content output-name]
   (let [base-name (fs/base-name output-name)]
     (when-not (fs/exists? output-name)
@@ -190,7 +188,7 @@
       (clojure.java.io/copy (clojure.java.io/input-stream x) out)
       (.toByteArray out))
     (catch FileNotFoundException e
-      (log/warn (str  "Could not read:" x))
+      (log/warn (str  "Could not read: " x))
       nil)))
 
 (defn handle-doc

@@ -39,7 +39,7 @@
       (every? true? (map #(< -1 % 256) numbers)))))
 
 (defn ipv6-form-1?
-  "Validate IPv6 accordring to https://tools.ietf.org/html/rfc4291#section-2.2
+  "Validate IPv6 according to https://tools.ietf.org/html/rfc4291#section-2.2
   form 1."
   [ipv6-string]
   (let [tokens (str/split ipv6-string #":")]
@@ -48,7 +48,7 @@
          (no-hanging-colon? ipv6-string))))
 
 (defn ipv6-form-2?
-  "Validate IPv6 accordring to https://tools.ietf.org/html/rfc4291#section-2.2
+  "Validate IPv6 according to https://tools.ietf.org/html/rfc4291#section-2.2
   form 2."
   [ipv6-string]
   (let [colon-colon-count (count (re-seq #"::" ipv6-string))
@@ -59,8 +59,7 @@
              (no-hanging-colon? ipv6-string)))))
 
 (defn ipv6-form-3?
-  "Validate IPv6 accordring to https://tools.ietf.org/html/rfc4291#section-2.2
-  form 2."
+  "Validate IPv6 according to https://tools.ietf.org/html/rfc4291#section-2.2 form 2."
   [ipv6-string]
   (let [parts (re-find #"([a-zA-Z0-9:]+):(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})" ipv6-string)]
     (if (not-nil? parts)

@@ -4,7 +4,7 @@
      [clojure.data.json :as json]))
 
 (defn send-to-elasticsearch
-  "Send a datastructure to elasticsearch"
+  "Send a data structure to Elasticsearch"
   [data cfg doc-type sha-256]
   (let [document (json/write-str data)
         host (:elasticsearch (:storage cfg))
@@ -15,8 +15,8 @@
                   :accept :json})))
 
 (defn send-to-nifi
-  "Send a datastructure to nifi"
-  [data cfg _ sha-256]
+  "Send a data structure to NiFi"
+  [data cfg _ _]
   (let [document (json/write-str data)
         url (get-in cfg [:storage :nifi])]
     (client/post url
