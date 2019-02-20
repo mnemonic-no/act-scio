@@ -13,6 +13,7 @@
                  [org.clojure/data.json "0.2.6"]
                  [org.clojure/core.async "0.4.490"]
                  [org.clojure/tools.logging "0.4.1"]
+                 [org.clojure/tools.cli "0.4.1"]
                  [ch.qos.logback/logback-classic "1.2.3"]
                  [beanstalk-clj "0.1.3"]]
   :main ^:skip-aot scio-back.core
