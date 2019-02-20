@@ -6,7 +6,7 @@
     [scio-back.nlp :as nlp]
     [scio-back.scraper :as scraper]
     [clojure.set :refer [difference]]
-    [clojure.core.async :as a :refer [>!! <!! chan thread]]
+    [clojure.core.async :refer [>!! <!! chan]]
     [clojure.data.json :as json]
     [clojure.java.io :as io]
     [clojure.stacktrace :as stacktrace]
