@@ -2,7 +2,7 @@
   (:import [info.debatty.java.spamsum SpamSum])
   (:require
    [scio-back.tag :as tag]
-   [scio-back.es :as es]
+   [scio-back.storage :as storage]
    [pantomime.extract :as extract]
    [scio-back.nlp :as nlp]
    [scio-back.scraper :as scraper]
@@ -145,7 +145,7 @@
           (if-let [a (with-timeout ms-running-time sha256
                        (analyse file-name cfg sha256))]
             (do
-              (es/send-to-nifi
+              (storage/send-to-nifi
                (into a record)
                cfg
                (str (get-in cfg [:storage :index]) "/doc")
