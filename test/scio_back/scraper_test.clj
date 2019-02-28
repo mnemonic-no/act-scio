@@ -13,6 +13,9 @@
     %2ftwitter.com lorem ipsum
     %2Ftwitter.com lorem ipsum
     127.0.0.1 lorem ipsum
+    127[.]0[.]0[.]2 lorem ipsum
+    127.0.0{.}3 lorem ipsum
+    127.0.0\\.4 lorem ipsum
     ftp://files.example.com lorem ipsum
     https://www.vg.no/index.html?q=news#top lorem / ipsum
     HTTP://1.2.3.4/5-index.html / lorem ipsum 
@@ -56,7 +59,7 @@
       (is  (= (:email indicators) '("user@fastmail.fm"))))
 
     (testing "scrape ipv4 lowercase"
-      (is  (= (:ipv4 indicators) '("127.0.0.1" "1.2.3.4" "2.3.4.5" "3.4.5.6" "4.5.6.7"))))
+      (is  (= (:ipv4 indicators) '("127.0.0.1" "127.0.0.2" "127.0.0.3" "127.0.0.4" "1.2.3.4" "2.3.4.5" "3.4.5.6" "4.5.6.7"))))
 
     (testing "scrape ipv4net"
       (is (= (:ipv4net indicators) '("5.6.7.8/9" "6.7.8.9/10"))))
