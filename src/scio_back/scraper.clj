@@ -96,6 +96,7 @@
                       (clojure.string/replace "[.]" ".")
                       (clojure.string/replace "(.)" ".")
                       (clojure.string/replace "{.}" ".")
+                      (clojure.string/replace "\\." ".")
                       (clojure.string/replace "%2f" "/"))]
     {:md5 (raw-text->md5 soft-text)
      :sha1 (raw-text->sha1 soft-text)
