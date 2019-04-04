@@ -222,7 +222,7 @@
   "Take an alias and build a regex matching on both name and alises"
   [alias]
   (let [wordlist (cons (:name alias) (:aliases alias))
-        proto-pattern (clojure.string/join "|" wordlist)]
+        proto-pattern (clojure.string/join "|" (map #(str "\\b" % "\\b") wordlist))]
     (re-pattern (str "(?i)" proto-pattern))))
 
 (defn tools
