@@ -1,6 +1,7 @@
 /target
 /classes
 /checkouts
+vendor
 tools/feeds/test
 *.jar
 *.swp
