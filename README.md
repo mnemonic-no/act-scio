@@ -28,8 +28,10 @@ script/get-vendor-files.sh
 
 In repository, run this command to replace all directories in ini-file to point to our local repository.
 
+This is also needed to run the tests.
+
 ```bash
-sed -i "s#/opt/scio#$(pwd)#g" etc/scio.ini
+sed "s#/opt/scio#$(pwd)#g" etc/scio.ini > etc/scio.ini.local
 ```
 
 Create directoy for storing documents.
@@ -62,10 +64,10 @@ lein test
 
 
 ```bash
-java -jar ./target/uberjar/scio-back-[VERSION]-standalone.jar --config /opt/scio/etc/scio.ini
+java -jar ./target/uberjar/scio-back-[VERSION]-standalone.jar --config etc/scio.ini.local
 ```
 
-Config file defaults to /etc/scio.ini.
+Config file defaults to /etc/scio.ini if not specified.
 
 ### Bugs
 

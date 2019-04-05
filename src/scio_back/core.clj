@@ -9,6 +9,7 @@
    [clojure.tools.logging :as log])
   (:gen-class))
 
+
 (def cli-options
   "CLI Options"
   [["-c" "--config CONFIG" "Config File"

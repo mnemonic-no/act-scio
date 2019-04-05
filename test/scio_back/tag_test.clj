@@ -35,18 +35,18 @@
 
 (deftest region-test
   (testing "Check that we can filter out valid regions and sub-regions"
-    (let [region-cfg "etc/ISO-3166-countries-with-regional-codes.json"]
+    (let [region-cfg "vendor/geonames/ISO-3166-countries-with-regional-codes.json"]
       (is (= (region-info region-cfg #{"Asia", "NO VALID REGION"}, :region)  #{"Asia"}))
       (is (= (region-info region-cfg #{"Northern Europe", "NO VALID SUB REGION"}, :sub-region)  #{"Northern Europe"})))))
 
 (deftest region-test
   (testing "Check that we can filter out valid regions and sub-regions"
-    (let [region-cfg "etc/ISO-3166-countries-with-regional-codes.json"]
+    (let [region-cfg "vendor/geonames/ISO-3166-countries-with-regional-codes.json"]
       (is (= (country->region region-cfg #{"Norway", "Unknown", "Japan"}, :region) #{"Asia", "Europe"}))
       (is (= (country->region region-cfg #{"Norway", "Unknown", "Japan"}, :sub-region) #{"Northern Europe", "Eastern Asia"})))))
 
 (deftest find-sectors-test
   (testing "finding sectors in a text"
     (let [text "A financial sector and a banking organization walked over a bridge. They said helo to the defence sector and tipped their hat to king kong. The malware research industries was not particularly talkative."
-          sectors (find-sectors (:sectors (read-config)) text)]
+          sectors (find-sectors (:sectors (read-config "etc/scio.ini.local")) text)]
       (is (= sectors #{"defence" "technology" "financial-services"})))))

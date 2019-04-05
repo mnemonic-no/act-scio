@@ -2,6 +2,8 @@
 /classes
 /checkouts
 vendor
+etc/scio.ini.local
+documents
 tools/feeds/test
 *.jar
 *.swp

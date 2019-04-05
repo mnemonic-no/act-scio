@@ -6,7 +6,7 @@
 (def test-text-lowercase "
     md5: be5ee729563fa379e71d82d61cc3fdcf lorem ipsum
     sha256: 103cb6c404ba43527c2deac40fbe984f7d72f0b2366c0b6af01bd0b4f1a30c74 lorem ipsum
-    sha1: 3c07cb361e053668b4686de6511d6a904a9c4495 lorem ipsum 
+    sha1: 3c07cb361e053668b4686de6511d6a904a9c4495 lorem ipsum
     %2fchessbase.com lorem ipsum
     %2Fchessbase.com lorem ipsum
     twitter.com lorem ipsum
@@ -18,21 +18,21 @@
     127.0.0\\.4 lorem ipsum
     ftp://files.example.com lorem ipsum
     https://www.vg.no/index.html?q=news#top lorem / ipsum
-    HTTP://1.2.3.4/5-index.html / lorem ipsum 
-    http://2.3.4.5/ lorem / ipsum 
+    HTTP://1.2.3.4/5-index.html / lorem ipsum
+    http://2.3.4.5/ lorem / ipsum
     http://3.4.5.6 lorem ipsum
     4.5.6.7/gurba lorem ipsum
     5.6.7.8/9 lorem ipsum
     6.7.8.9/10 lorem ipsum
     CVE-1991-1234 lorem ipsum
     CVE-1992-12345 lorem ipsum
-    CVE-1993-123456 lorem ipsum 
+    CVE-1993-123456 lorem ipsum
     CVE-1994-12 lorem ipsum
     CVE-1994-1234567 lorem ipsum
     www.nytimes3xbfgragh.onion lorem ipsum
     fe80::ea39:35ff:fe12:2d71/64 lorem ipsum
     The mail address user@fastmail.fm is not real
-    www.mnemonic.no") 
+    www.mnemonic.no")
 
 (def test-text-uppercase
   (clojure.string/upper-case test-text-lowercase))
@@ -45,7 +45,7 @@
       (is (= tlds-first ["com" "no"])))))
 
 (deftest test-scraper
-  (let [indicators (raw-text->indicators (read-config) test-text-lowercase)]
+  (let [indicators (raw-text->indicators (read-config "etc/scio.ini.local") test-text-lowercase)]
     (testing "scrape md5 lowercase"
       (is (= (:md5 indicators) '("be5ee729563fa379e71d82d61cc3fdcf"))))
 

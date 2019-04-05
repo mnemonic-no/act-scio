@@ -7,7 +7,7 @@
 
 (deftest simple-test
   (testing "Extraction"
-    (let [res (raw-text->interpretation (read-config) :en "Jon Jameson, a citizen of Norway, did find a Toyota Landcruiser besides the road at 4am this evening.")]
+    (let [res (raw-text->interpretation (read-config "etc/scio.ini.local") :en "Jon Jameson, a citizen of Norway, did find a Toyota Landcruiser besides the road at 4am this evening.")]
       (is (contains? res :persons))
       (is (contains? res :organizations))
       (is (contains? res :times))
