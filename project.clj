@@ -1,4 +1,4 @@
-(defproject scio-back "0.1.40-SNAPSHOT"
+(defproject scio-back "0.1.41-SNAPSHOT"
   :description "Storing tweets and documents to alastic search for indexing."
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.apache.commons/commons-compress "1.18"] ;; "fix" for missing class in pantomime
@@ -7,6 +7,7 @@
                  [info.debatty/java-spamsum "0.2"]
                  [clj-http "3.9.1"]
                  [org.clojure/algo.generic "0.1.3"]
+                 [org.clojure/tools.cli "0.4.2"]
                  [clojure-ini "0.0.2"]
                  [clojure-opennlp "0.5.0"]
                  [digest "1.4.8"]

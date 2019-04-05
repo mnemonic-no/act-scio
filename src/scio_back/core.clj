@@ -1,17 +1,28 @@
 (ns scio-back.core
   (:require
    [scio-back.doc :as doc]
+   [clojure.tools.cli :refer [parse-opts]]
    [clojure-ini.core :as ini]
+   [clojure.java.io :as io]
    [clojure.core.async :as a :refer  [<!! chan thread]]
    [clojure.data.json :as json]
    [clojure.tools.logging :as log])
   (:gen-class))
 
-(def config-path "/etc/scio.ini")
+
+(def cli-options
+  "CLI Options"
+  [["-c" "--config CONFIG" "Config File"
+    :id :config
+    :default "/etc/scio.ini"
+    :validate [#(.isFile (io/file %))]]
+   ["-h" "--help"]])
+
 
 (defn read-config
-  ([]  (read-config config-path))
-  ([file-name] (ini/read-ini file-name :keywordize? true)))
+  [file-name]
+  (ini/read-ini file-name :keywordize? true))
+
 
 (defn main-loop
   "Connecting to work-queue and launching the document handler."
@@ -24,8 +35,19 @@
                            :queue beanstalk-queue}
                           cfg)))
 
+(defn exit
+  "Print message to stderr and exit with exit code"
+  [msg exitcode]
+  (.println *err* msg)
+  (System/exit exitcode))
+
+
 (defn -main
   "The scio-back application. Reading from queue, parsing documents."
   [& args]
-  (main-loop (read-config)))
-
+  (let [cli-args (parse-opts args cli-options)
+        options (:options cli-args)
+        errors (:errors cli-args)]
+    (if errors
+      (exit (clojure.string/join ", " errors) 1)
+      (main-loop (read-config (:config options))))))

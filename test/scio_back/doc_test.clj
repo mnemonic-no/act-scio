@@ -9,7 +9,7 @@
         test-file "test/data/test_document.docx"
         content (slurp-bytes test-file)
         sha-256 (digest/sha-256 content)
-        doc (analyse test-file (read-config) sha-256)]
+        doc (analyse test-file (read-config "etc/scio.ini.local") sha-256)]
     (testing "ipv4"
       (is (= (get-in doc [:indicators :ipv4]) '("127.0.0.1"))))
     (testing "fqdn"
