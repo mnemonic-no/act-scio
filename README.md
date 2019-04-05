@@ -19,6 +19,8 @@ cd act-scio
 
 ### Download vendor files to vendor/ (OpenNLP models, Geo names and TLDs)
 
+This will populate the vendor/ directory.
+
 ```bash
 
 script/get-vendor-files.sh
@@ -26,9 +28,10 @@ script/get-vendor-files.sh
 
 ### To run locally
 
-In repository, run this command to replace all directories in ini-file to point to our local repository.
+In the repository root, run this command to create a local config (etc/scio.ini.local)
+where all directories points to our local repository.
 
-This is also needed to run the tests.
+This step is required to run the tests.
 
 ```bash
 sed "s#/opt/scio#$(pwd)#g" etc/scio.ini > etc/scio.ini.local
@@ -40,7 +43,9 @@ Create directoy for storing documents.
 mkdir documents
 ```
 
-### System wide installation: copy files
+### System wide installation
+
+Copy required files to /opt/scio:
 
 ```bash
 mkdir -p /opt/scio/documents
