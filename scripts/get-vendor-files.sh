@@ -14,11 +14,13 @@ curl https://data.iana.org/TLD/tlds-alpha-by-domain.txt -o $TLD/tlds-alpha-by-do
 
 # Geo Names
 curl http://download.geonames.org/export/dump/cities1000.zip -o $GEO_HOME/cities1000.zip
-unzip -fo $GEO_HOME/cities1000.zip cities1000.txt -d $GEO_HOME
+unzip -o $GEO_HOME/cities1000.zip cities1000.txt -d $GEO_HOME
 curl http://download.geonames.org/export/dump/cities15000.zip -o $GEO_HOME/cities15000.zip
-unzip -fo $GEO_HOME/cities15000.zip cities15000.txt -d $GEO_HOME
+unzip -o $GEO_HOME/cities15000.zip cities15000.txt -d $GEO_HOME
 curl http://download.geonames.org/export/dump/countryInfo.txt -o $GEO_HOME/countryInfo.txt
 sed -i '/^#/d' $GEO_HOME/countryInfo.txt
+
+exit 1
 
 # Remove downloaded zip files
 rm -f $GEO_HOME/cities1*zip
