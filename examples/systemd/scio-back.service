@@ -1,0 +1,14 @@
+Description=SCIO backend service
+
+[Service]
+User=scio
+LimitCORE=0
+ExecStart=/usr/bin/java -Xmx6G -jar /opt/scio/scio-back-latest-standalone.jar
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=scio
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
