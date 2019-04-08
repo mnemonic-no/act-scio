@@ -74,6 +74,18 @@ java -jar ./target/uberjar/scio-back-[VERSION]-standalone.jar --config etc/scio.
 
 Config file defaults to /etc/scio.ini if not specified.
 
+
+### Running as a service
+
+A systemd compatible service script can be found under examples/systemd.
+
+To install:
+
+```bash
+cp examples/systemd/scio-back.service /usr/lib/systemd/system
+systemctl enable scio-back.service
+```
+
 ### Bugs
 
 
