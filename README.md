@@ -79,12 +79,15 @@ Config file defaults to /etc/scio.ini if not specified.
 
 A systemd compatible service script can be found under examples/systemd.
 
-To install:
+To install (requires latest uberjar in /opt/scio):
 
 ```bash
 cp examples/systemd/scio-back.service /usr/lib/systemd/system
 systemctl enable scio-back.service
+examples/systemd/upgrade-latest.sh
 ```
+
+The upgrade script will create a symlink from the latest uberjar found in /opt/scio.
 
 ### Bugs
 
