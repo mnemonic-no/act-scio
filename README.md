@@ -22,8 +22,7 @@ cd act-scio
 This will populate the vendor/ directory.
 
 ```bash
-
-script/get-vendor-files.sh
+scripts/get-vendor-files.sh
 ```
 
 ### To run locally
