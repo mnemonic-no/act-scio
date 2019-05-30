@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/local/bin/python3.6
 """Copyright 2019 mnemonic AS <opensource@mnemonic.no>
 
 Permission to use, copy, modify, and/or distribute this software for
@@ -17,17 +17,13 @@ PERFORMANCE OF THIS SOFTWARE.
 
 ---
 Program to check the feed output directory of feed_downloader.py
-
 Any downloaded content not found in the cache is handled.
-
 The .meta files associated with the .html files from the feed download is
-kept to preserve information about source and original titles as well as 
+kept to preserve information about source and original titles as well as
 feed time and date stamps.
-
 This files builds a document understood by SCIOs 'doc' work queue.
-
 This utility is not meant to handle the files downloaded from links _in_ the
-feed as these document does not share any of the meta-data associated with 
+feed as these document does not share any of the meta-data associated with
 the feed entries. These files need to be handled separately (using SCIOs own
 submit utility.
 """
@@ -38,118 +34,21 @@ import json
 import logging
 import os
 import sqlite3
+import base64
 
-import pystalkd.Beanstalkd
-import magic
+from typing import (
+    IO,
+    Text,
+    Dict,
+    List,
+    Tuple,
+)
+
+import requests
+import magic  # type: ignore
+
 
 LOGGER = logging.getLogger('root')
-
-
-def init():
-    """initialize argument parser"""
-
-    parser = argparse.ArgumentParser(description="Upload html to Scio")
-    parser.add_argument("-l", "--log", type=str,
-                        help="Which file to log to (default: stdout)")
-    parser.add_argument("-q", "--queue", type=str, default="doc",
-                        help="Which beanstalk queue to use (default: doc)")
-    parser.add_argument("-v", "--verbose", action="store_true",
-                        help="Log level INFO")
-    parser.add_argument("--debug", action="store_true",
-                        help="Log level DEBUG")
-    parser.add_argument("--cache", type=str, default="upload.sqlite",
-                        help=("Which database used for caching allready " +
-                              "uploaded files (default: upload.sqlite)"))
-    parser.add_argument("directories", metavar="DIR", type=str, nargs='+',
-                        help="Which directories to scan")
-
-    return parser.parse_args()
-
-
-def metadata(file_pairs):
-    """Takes a list of pairs (.html, .meta), opens the .meta file,
-    parses the content and returns a list of pairs (.html, dict(meta))"""
-
-    res = []
-
-    for html, meta in file_pairs:
-        if not os.path.isfile(html):
-            LOGGER.warn("File not found %s (skipping)", html)
-            continue
-        if not os.path.isfile(meta):
-            LOGGER.warn("File not found %s, skipping %s", meta, html)
-            continue
-
-        LOGGER.debug("Starting reading metadata : %s", meta)
-        with open(meta, "r") as metadata_file:
-            my_metadata = json.load(metadata_file)
-
-        res.append((html, my_metadata))
-
-    return res
-
-
-def get_files(directories):
-    """In a directory, get a listing of all .html files, pair
-    them with the correct .meta file and build a list of
-    CandidateFile object containing the path to the .html content
-    file and the parsed meta data"""
-
-    def rewrite_meta(file_path):
-        """take a path with a .html extension and replace the
-        extension with .meta"""
-
-        return file_path[:-4] + "meta"
-
-    LOGGER.debug("Scanning %s", directories)
-
-    res = []
-
-    for directory in directories:
-        LOGGER.debug("Scanning %s", directory)
-        files = os.listdir(directory)
-        files = [os.path.join(directory, x) for x in files]
-        html = [x for x in files if x[-5:] == ".html"]
-        meta = list(map(rewrite_meta, html))
-
-        for pair in metadata(list(zip(html, meta))):
-            res.append(CandidateFile(*pair))
-
-    return res
-
-
-def main(args):
-    """entry point"""
-
-    submit_cache = Cache(args.cache)
-
-    candidates = get_files(args.directories)
-
-    LOGGER.info("Found %d files", len(candidates))
-
-    bs_conn = pystalkd.Beanstalkd.Connection()
-    bs_conn.use(args.queue)
-
-    for candidate in candidates:
-
-        partial_feed = candidate.metadata.get("partial_feed", False)
-        if partial_feed:
-            LOGGER.info("Partial feed: %s", candidate.filename) # NOQA
-            hexdigest = hashlib.sha256(candidate.metadata["link"].encode("utf-8")).hexdigest()
-            LOGGER.info("Partial feed: %s", hexdigest) # NOQA
-        else:
-            hexdigest = candidate.sha256()
-
-        if not submit_cache.uploaded(hexdigest):
-            LOGGER.debug("submit %s", candidate.filename)
-            submit_cache.insert(candidate.filename, hexdigest,
-                                candidate.metadata.get("creation-date", "NA"))
-            my_metadata = candidate.metadata
-            my_metadata['filename'] = candidate.filename
-            if candidate.uploadable():
-                bs_conn.put(json.dumps(my_metadata))
-            else:
-                LOGGER.info("Not uploading %s (wrong mimetype)", candidate.filename) # NOQA
 
 
 class CandidateFile(object):
@@ -192,7 +91,7 @@ class CandidateFile(object):
         return self._sha256
 
 
-class Cache(object):
+class Cache:
     """Cache handles the caching database logic"""
 
     def __init__(self, filename="upload.sqlite"):
@@ -239,10 +138,131 @@ class Cache(object):
 
         for result in results:
             key_value_pairs = list(zip(["filename", "sha256", "description"],
-                                   result))
+                                       result))
             result_dictionaries.append(dict(key_value_pairs))
 
         return result_dictionaries
+
+
+def init():
+    """initialize argument parser"""
+
+    parser = argparse.ArgumentParser(description="Upload html to Scio")
+    parser.add_argument("-l", "--log", type=str,
+                        help="Which file to log to (default: stdout)")
+    parser.add_argument("-v", "--verbose", action="store_true",
+                        help="Log level INFO")
+    parser.add_argument("--debug", action="store_true",
+                        help="Log level DEBUG")
+    parser.add_argument("--cache", type=str, default="upload.sqlite",
+                        help=("Which database used for caching allready " +
+                              "uploaded files (default: upload.sqlite)"))
+    parser.add_argument("--scio", type=str, help="URL to scio for submit")
+    parser.add_argument("directories", metavar="DIR", type=str, nargs='+',
+                        help="Which directories to scan")
+
+    return parser.parse_args()
+
+
+def metadata(file_pairs: List[Tuple[Text, Text]]) -> List[Tuple[Text, Dict]]:
+    """Takes a list of pairs (.html, .meta), opens the .meta file,
+    parses the content and returns a list of pairs (.html, dict(meta))"""
+
+    res = []
+
+    for html, meta in file_pairs:
+        if not os.path.isfile(html):
+            LOGGER.warning("File not found %s (skipping)", html)
+            continue
+        if not os.path.isfile(meta):
+            LOGGER.warning("File not found %s, skipping %s", meta, html)
+            continue
+
+        LOGGER.debug("Starting reading metadata : %s", meta)
+        with open(meta, "r") as metadata_file:
+            my_metadata = json.load(metadata_file)
+
+        res.append((html, my_metadata))
+
+    return res
+
+
+def get_files(directories: List[Text]) -> List[CandidateFile]:
+    """In a directory, get a listing of all .html files, pair
+    them with the correct .meta file and build a list of
+    CandidateFile object containing the path to the .html content
+    file and the parsed meta data"""
+
+    def rewrite_meta(file_path):
+        """take a path with a .html extension and replace the
+        extension with .meta"""
+
+        return file_path[:-4] + "meta"
+
+    LOGGER.debug("Scanning %s", directories)
+
+    res = []
+
+    for directory in directories:
+        LOGGER.debug("Scanning %s", directory)
+        files = os.listdir(directory)
+        files = [os.path.join(directory, x) for x in files]
+        html = [x for x in files if x[-5:] == ".html"]
+        meta = list(map(rewrite_meta, html))
+
+        for pair in metadata(list(zip(html, meta))):
+            res.append(CandidateFile(*pair))
+
+    return res
+
+
+def read_as_base64(obj: IO) -> Text:
+    """Create a base64 encoded string from a file like object"""
+
+    encoded_bytes = base64.b64encode(obj.read())
+    return encoded_bytes.decode('ascii')
+
+
+def to_scio_submit_post_data(obj: IO, file_name: Text) -> Dict[Text, Text]:
+    """Take a file like object, and return a dictionary on the correct form for
+    submitting to the SCIO API (https://github.com/mnemonic-no/act-scio-api)"""
+
+    return {'content': read_as_base64(obj), 'filename': file_name}
+
+
+def main(args):
+    """entry point"""
+
+    submit_cache = Cache(args.cache)
+
+    candidates = get_files(args.directories)
+
+    LOGGER.info("Found %d files", len(candidates))
+
+    for candidate in candidates:
+
+        partial_feed = candidate.metadata.get("partial_feed", False)
+        if partial_feed:
+            LOGGER.info("Partial feed: %s", candidate.filename) # NOQA
+            hexdigest = hashlib.sha256(candidate.metadata["link"].encode("utf-8")).hexdigest()
+            LOGGER.info("Partial feed: %s", hexdigest) # NOQA
+        else:
+            hexdigest = candidate.sha256()
+
+        if not submit_cache.uploaded(hexdigest):
+            LOGGER.debug("submit %s", candidate.filename)
+            submit_cache.insert(candidate.filename, hexdigest,
+                                candidate.metadata.get("creation-date", "NA"))
+            my_metadata = candidate.metadata
+            my_metadata['filename'] = candidate.filename
+            if candidate.uploadable():
+                with open(candidate.filename, "rb") as file_h:
+                    post_data = to_scio_submit_post_data(file_h, candidate.filename)
+                    session = requests.Session()
+                    session.trust_env = False
+                    session.post(args.scio, json=post_data)
+            else:
+                LOGGER.info("Not uploading %s (wrong mimetype)", candidate.filename) # NOQA
 
 
 if __name__ == "__main__":
