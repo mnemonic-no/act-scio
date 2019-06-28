@@ -1,0 +1,15 @@
+{
+    "link": "https://blog.fox-it.com/2018/12/18/your-trust-our-signature/",
+    "source": "Fox-IT International blog",
+    "creation-date": "2018-12-18T13:35:42",
+    "title": "Your trust, our signature",
+    "links": [
+        "https://blog.fox-it.com/2018/12/18/your-trust-our-signature/",
+        "https://en.wikipedia.org/wiki/Email_spoofing",
+        "https://github.com/fox-it/signed-phishing-email",
+        "https://github.com/elceef/dnstwist",
+        "https://www.rijksoverheid.nl/onderwerpen/digitale-overheid/vraag-en-antwoord/wat-is-een-elektronische-handtekening",
+        "https://m2crypto.readthedocs.io/en/latest/howto.smime.html#m2crypto-smime"
+    ],
+    "partial_feed": false
+}

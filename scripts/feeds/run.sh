@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 
+export http_proxy=http://my.proxy.server:8080
+export https_proxy=http://my.proxy.server:8080
+
+SUBMIT=http://scio.domain.tld:3000/submit
+NO_PROXY=$SUBMIT
+
 BASE=/opt/scio_feeds
-SCIODIR=/opt/scio
+cd $BASE
 
 mkdir $BASE/download 2> /dev/null
 mkdir $BASE/pdf 2> /dev/null
@@ -26,11 +32,12 @@ $BASE/feed_download.py \
 $BASE/upload.py \
 --log $BASE/log/upload.log \
 --cache $BASE/upload.db \
---debug $BASE/download
+--debug $BASE/download \
+--scio $SUBMIT
 
 
 for dir in pdf doc xls csv xml; do
-	for file_name in `$BASE/submitcache.py -c $BASE/submitcache.db -a $BASE/$dir` ; do
-		$SCIODIR/submit.py $file_name
-	done
+    for file_name in `$BASE/submitcache.py -c $BASE/submitcache.db -a $BASE/$dir` ; do
+        $SCIODIR/submit.py $SUBMIT $file_name
+    done
 done

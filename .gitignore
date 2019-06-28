@@ -16,3 +16,5 @@ log/
 !log/readme.txt
 \#*\#
 \.\#*
+scripts/feeds/.mypy_cache/
+scripts/feeds/test/.mypy_cache/
