@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3
 """Simple submit script to upload files to scio"""
 
 import sys

@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3.6
+#!/usr/bin/env python3
 """Copyright 2019 mnemonic AS <opensource@mnemonic.no>
 
 Permission to use, copy, modify, and/or distribute this software for
