@@ -71,10 +71,18 @@
 
 (def not-nil? (complement nil?))
 
+(defn remove-from-end [s end]
+  """remove [end] from the end of [s]"""
+  (if (.endsWith s end)
+    (.substring s 0 (- (count s)
+                       (count end)))
+    s))
+
 (defn- ends-in-tld?
   "check if the string end in .[a-z]{2,} (two or more lowercase characters)"
   [tlds text]
-  (let [found (map #(re-find (tld-pattern %) text) tlds)]
+  (let [text (remove-from-end text ".")
+        found (map #(re-find (tld-pattern %) text) tlds)]
     (some not-nil? found)))
 
 (defn tlds-from-files
@@ -93,6 +101,7 @@
   (let [config-files (string/split (get-in cfg [:scraper :tld]) #",")
         tlds (tlds-from-files config-files)
         soft-text (-> (.toLowerCase text)
+                      (clojure.string/replace "hxxp" "http")
                       (clojure.string/replace "[.]" ".")
                       (clojure.string/replace "(.)" ".")
                       (clojure.string/replace "{.}" ".")
