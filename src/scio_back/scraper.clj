@@ -32,7 +32,11 @@
 (defn raw-text->uri
   "Extract all uri from a raw text"
   [text]
-  (map #(get % 0) (re-seq uri-re-string text)))
+  (let [first-extract (map #(get % 0) (re-seq uri-re-string text))
+        ;; refang hxxp -> http
+        res (map #(clojure.string/replace % (re-pattern #"(?i)^hxxp") "http") first-extract)]
+    res))
+
 
 (def ip-re-string #"([a-zA-Z]*:\/\/)?\b([0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9])(\/\d{1,2})?\b")
 
@@ -101,7 +105,6 @@
   (let [config-files (string/split (get-in cfg [:scraper :tld]) #",")
         tlds (tlds-from-files config-files)
         soft-text (-> (.toLowerCase text)
-                      (clojure.string/replace "hxxp" "http")
                       (clojure.string/replace "[.]" ".")
                       (clojure.string/replace "(.)" ".")
                       (clojure.string/replace "{.}" ".")

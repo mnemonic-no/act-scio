@@ -3,7 +3,7 @@
             [scio-back.scraper :refer :all]
             [scio-back.core :refer [read-config]]))
 
-(def test-text-lowercase "
+  (def test-text-lowercase "hXXp://my.test.no/hxxp/
     md5: be5ee729563fa379e71d82d61cc3fdcf lorem ipsum
     sha256: 103cb6c404ba43527c2deac40fbe984f7d72f0b2366c0b6af01bd0b4f1a30c74 lorem ipsum
     sha1: 3c07cb361e053668b4686de6511d6a904a9c4495 lorem ipsum
@@ -66,13 +66,13 @@
       (is (= (:ipv4net indicators) '("5.6.7.8/9" "6.7.8.9/10"))))
 
     (testing "scrape fqdn lowercase"
-      (is  (= (:fqdn indicators) '("chessbase.com" "chessbase.com" "twitter.com" "twitter.com" "twitter.com" "files.example.com" "www.vg.no" "www.nytimes3xbfgragh.onion" "fastmail.fm" "www.mnemonic.no" "this.ends.in.tld.no."))))
+      (is  (= (:fqdn indicators) '("my.test.no" "chessbase.com" "chessbase.com" "twitter.com" "twitter.com" "twitter.com" "files.example.com" "www.vg.no" "www.nytimes3xbfgragh.onion" "fastmail.fm" "www.mnemonic.no" "this.ends.in.tld.no."))))
 
     (testing "scrape ipv6 lowercase"
       (is  (= (:ipv6 indicators) '("fe80::ea39:35ff:fe12:2d71"))))
 
     (testing "scrape uri"
-      (is (= (:uri indicators) '("ftp://files.example.com" "https://www.vg.no/index.html?q=news#top" "http://1.2.3.4/5-index.html" "http://2.3.4.5/" "https://3.4.5.6"))))
+      (is (= (:uri indicators) '("http://my.test.no/hxxp/" "ftp://files.example.com" "https://www.vg.no/index.html?q=news#top" "http://1.2.3.4/5-index.html" "http://2.3.4.5/" "https://3.4.5.6"))))
 
     (testing "scrape cve lowercase"
       (is (= (:cve indicators) '("cve-1991-1234" "cve-1992-12345" "cve-1993-123456" "cve-1994-1234567"))))))
