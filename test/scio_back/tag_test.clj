@@ -41,7 +41,8 @@
 
 (deftest region-test
   (testing "Check that we can filter out valid regions and sub-regions"
-    (let [region-cfg "vendor/geonames/ISO-3166-countries-with-regional-codes.json"]
+    (let [cfg (read-config "etc/scio.ini.local")
+          region-cfg (get-in cfg [:geonames :regions])]
       (is (= (country->region region-cfg #{"Norway", "Unknown", "Japan"}, :region) #{"Asia", "Europe"}))
       (is (= (country->region region-cfg #{"Norway", "Unknown", "Japan"}, :sub-region) #{"Northern Europe", "Eastern Asia"})))))
 
