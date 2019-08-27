@@ -32,7 +32,11 @@
 (defn raw-text->uri
   "Extract all uri from a raw text"
   [text]
-  (map #(get % 0) (re-seq uri-re-string text)))
+  (let [first-extract (map #(get % 0) (re-seq uri-re-string text))
+        ;; refang hxxp -> http
+        res (map #(clojure.string/replace % (re-pattern #"(?i)^hxxp") "http") first-extract)]
+    res))
+
 
 (def ip-re-string #"([a-zA-Z]*:\/\/)?\b([0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9]\.[0-2]?[0-9]?[0-9])(\/\d{1,2})?\b")
 
@@ -71,10 +75,18 @@
 
 (def not-nil? (complement nil?))
 
+(defn remove-from-end [s end]
+  """remove [end] from the end of [s]"""
+  (if (.endsWith s end)
+    (.substring s 0 (- (count s)
+                       (count end)))
+    s))
+
 (defn- ends-in-tld?
   "check if the string end in .[a-z]{2,} (two or more lowercase characters)"
   [tlds text]
-  (let [found (map #(re-find (tld-pattern %) text) tlds)]
+  (let [text (remove-from-end text ".")
+        found (map #(re-find (tld-pattern %) text) tlds)]
     (some not-nil? found)))
 
 (defn tlds-from-files
@@ -108,4 +120,4 @@
      :ipv4net (raw-text->ipv4net soft-text)
      :ipv6 (filter validator/ipv6-form? (raw-text->ipv6 soft-text))
      :uri (raw-text->uri soft-text)
-     :fqdn (filter (partial ends-in-tld? tlds) (raw-text->fqdn soft-text))}))
+     :fqdn (map #(remove-from-end % ".") (filter (partial ends-in-tld? tlds) (raw-text->fqdn soft-text)))}))
