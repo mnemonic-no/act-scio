@@ -120,4 +120,4 @@
      :ipv4net (raw-text->ipv4net soft-text)
      :ipv6 (filter validator/ipv6-form? (raw-text->ipv6 soft-text))
      :uri (raw-text->uri soft-text)
-     :fqdn (filter (partial ends-in-tld? tlds) (raw-text->fqdn soft-text))}))
+     :fqdn (map #(remove-from-end % ".") (filter (partial ends-in-tld? tlds) (raw-text->fqdn soft-text)))}))

@@ -66,7 +66,7 @@
       (is (= (:ipv4net indicators) '("5.6.7.8/9" "6.7.8.9/10"))))
 
     (testing "scrape fqdn lowercase"
-      (is  (= (:fqdn indicators) '("my.test.no" "chessbase.com" "chessbase.com" "twitter.com" "twitter.com" "twitter.com" "files.example.com" "www.vg.no" "www.nytimes3xbfgragh.onion" "fastmail.fm" "www.mnemonic.no" "this.ends.in.tld.no."))))
+      (is  (= (:fqdn indicators) '("my.test.no" "chessbase.com" "chessbase.com" "twitter.com" "twitter.com" "twitter.com" "files.example.com" "www.vg.no" "www.nytimes3xbfgragh.onion" "fastmail.fm" "www.mnemonic.no" "this.ends.in.tld.no"))))
 
     (testing "scrape ipv6 lowercase"
       (is  (= (:ipv6 indicators) '("fe80::ea39:35ff:fe12:2d71"))))
