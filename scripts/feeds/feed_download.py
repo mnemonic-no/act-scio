@@ -39,6 +39,8 @@ import requests
 import feedparser
 from bs4 import BeautifulSoup
 
+from typing import Text, List
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 LOGGER = logging.getLogger('root')
@@ -174,13 +176,13 @@ def download_and_store(feed_url, path, link):
         shutil.copyfileobj(req.raw, download_file)
 
 
-def contains_one_of(s, mylist):
-	"""Check if one of the substrings in mylist is in s"""
+def contains_one_of(s: Text, mylist: List[Text]) -> bool:
+    """Check if one of the substrings in mylist is in s"""
 
-	for e in mylist:
-		if e in s:
-			return True
-	return False
+    for e in mylist:
+        if e in s:
+            return True
+    return False
 
 
 def check_links(feed_url, args, links):
