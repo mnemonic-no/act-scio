@@ -70,7 +70,7 @@ class CandidateFile(object):
 
         # Some file endings we need to upload no matter what (typicaly files
         # that is text type files.
-        uploadable_file_endings = [".xml", ".csv", ".html"]
+        uploadable_file_endings = [".xml", ".csv", ".html", ".txt", ".json"]
         for file_ending in uploadable_file_endings:
             if file_ending in self.filename:
                 return True
