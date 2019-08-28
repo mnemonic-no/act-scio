@@ -1,6 +1,6 @@
 # Feed downloader; used to submit to SCIO
 
-Downloads both full and partial feeds, as well as downloads any pdf,doc,xls,csv,xml files that are refereneced in the feed.
+Downloads both full and partial feeds, as well as downloads any pdf,doc,xls,csv,txt,json,xml files that are refereneced in the feed.
 
 ## Add feed
 
