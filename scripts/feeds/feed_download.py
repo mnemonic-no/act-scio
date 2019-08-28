@@ -178,11 +178,7 @@ def download_and_store(feed_url, path, link):
 
 def contains_one_of(s: Text, mylist: List[Text]) -> bool:
     """Check if one of the substrings in mylist is in s"""
-
-    for e in mylist:
-        if e in s:
-            return True
-    return False
+    return any([e in s for e in mylist])
 
 
 def check_links(feed_url, args, links):
