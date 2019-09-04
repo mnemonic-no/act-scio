@@ -52,7 +52,7 @@ def should_upload(mime, file_name):
     """Check if a file should be uploaded, based on file extension
     and  mime type"""
 
-    allways_upload = [".xml", ".csv", ".html"]
+    allways_upload = [".xml", ".csv", ".html", ".txt", ".json"]
 
     if mime.from_file(file_name).startswith("application"):
         return True

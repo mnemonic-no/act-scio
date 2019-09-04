@@ -39,6 +39,8 @@ import requests
 import feedparser
 from bs4 import BeautifulSoup
 
+from typing import Text, List
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 LOGGER = logging.getLogger('root')
@@ -174,6 +176,11 @@ def download_and_store(feed_url, path, link):
         shutil.copyfileobj(req.raw, download_file)
 
 
+def contains_one_of(s: Text, mylist: List[Text]) -> bool:
+    """Check if one of the substrings in mylist is in s"""
+    return any([e in s for e in mylist])
+
+
 def check_links(feed_url, args, links):
     """Run though a list of urls, checking if they contains certain
     elements that looks like possible file download possibilities"""
@@ -189,7 +196,7 @@ def check_links(feed_url, args, links):
                 download_and_store(feed_url, args.xls_store, link)
             if args.download_xml and ".xml" in link_lower:
                 download_and_store(feed_url, args.xml_store, link)
-            if args.download_csv and ".csv" in link_lower:
+            if args.download_csv and contains_one_of(link_lower, [".csv", ".txt", ".json"]):
                 download_and_store(feed_url, args.csv_store, link)
         except Exception as exc:  # pylint: disable=W0703
             LOGGER.error('%r generated an exception: %s', link, exc)
