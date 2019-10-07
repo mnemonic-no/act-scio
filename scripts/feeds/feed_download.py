@@ -52,6 +52,9 @@ def init():
     parser = argparse.ArgumentParser(description="pull feeds into html files")
     parser.add_argument("-l", "--log", type=str,
                         help="Which file to log to (default: stdout)")
+    parser.add_argument("--ignore", type=str,
+                        default="/opt/scio_feeds/ignore.txt",
+                        help="Which ignore file to use (skip download)")
     parser.add_argument("--download_pdf", action="store_true")
     parser.add_argument("--pdf_store", type=str, default="./pdf/",
                         help="Where to store PDF files (default: ./pdf/)")
@@ -111,7 +114,7 @@ def create_html(entry):
                             summary=summary)
 
 
-def safe_filename(path):
+def safe_filename(path: Text) -> Text:
     """Make filename safe by only allowing alpha numeric characters,
     digits and ._-"""
 
@@ -119,6 +122,25 @@ def safe_filename(path):
                    if c.isalpha() or
                    c.isdigit() or
                    c in "_ -.").replace(" ", "_")
+
+
+def in_ignore(ignore_file: Text, storage_path: Text, link: Text) -> bool:
+    """Check if the downloaded part of an url (filename/basename)
+    is in the ignore file"""
+
+    url = urllib.parse.urlparse(link)
+    fname = os.path.join(storage_path,
+                         safe_filename(os.path.basename(url.path)))
+    with open(ignore_file) as f:
+        ignored = [l.strip() for l in f.readlines()]
+        if fname == ignored:
+            LOGGER.info("Ignoring {} based on {}".format(link, fname))
+            return True
+        path = url.path.strip()
+        if path == ignored:
+            LOGGER.info("Ignoring {} based on {}".format(link, path))
+            return True
+    return False
 
 
 def download_and_store(feed_url, path, link):
@@ -164,12 +186,12 @@ def download_and_store(feed_url, path, link):
         LOGGER.info("Status %s - %s", req.status_code, link)
         return
 
+    if in_ignore("/opt/scio_feeds/ignore.txt", path, link):
+        return
+
     url = urllib.parse.urlparse(link)
     fname = os.path.join(path, safe_filename(os.path.basename(url.path)))
-    with open("/opt/scio_feeds/ignore.txt") as f:
-        ignored = [l.strip() for l in f.readlines()]
-        if fname in ignored:
-            return
+
     with open(fname, "wb") as download_file:
         LOGGER.info("Writing %s", fname)
         req.raw.decode_content = True
@@ -237,6 +259,9 @@ def partial_entry_text_to_file(args, entry):
         return None, None
 
     url = entry["link"]
+
+    if in_ignore(args.ignore, args.doc_store, url):
+        return None, None
 
     req = requests.get(url, headers=headers, verify=False, timeout=60)
 
