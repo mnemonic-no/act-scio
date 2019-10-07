@@ -135,14 +135,10 @@ def in_ignore(ignore_file: Text, storage_path: Text, link: Text) -> bool:
         ignored = [l.strip() for l in f.readlines()]
 
         if fname in ignored:
-            print(fname)
             LOGGER.warning("Ignoring {} based on {}".format(link, fname))
             return True
         path = os.path.basename(url.path.strip())
-        if "malware" in path:
-            print("Checking", path)
         if path in ignored:
-            print("Ignoring", path)
             LOGGER.warning("Ignoring {} based on {}".format(link, path))
             return True
 
