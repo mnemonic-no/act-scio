@@ -52,6 +52,9 @@ def init():
     parser = argparse.ArgumentParser(description="pull feeds into html files")
     parser.add_argument("-l", "--log", type=str,
                         help="Which file to log to (default: stdout)")
+    parser.add_argument("--ignore", type=str,
+                        default="/opt/scio_feeds/ignore.txt",
+                        help="Which ignore file to use (skip download)")
     parser.add_argument("--download_pdf", action="store_true")
     parser.add_argument("--pdf_store", type=str, default="./pdf/",
                         help="Where to store PDF files (default: ./pdf/)")
@@ -111,7 +114,7 @@ def create_html(entry):
                             summary=summary)
 
 
-def safe_filename(path):
+def safe_filename(path: Text) -> Text:
     """Make filename safe by only allowing alpha numeric characters,
     digits and ._-"""
 
@@ -121,7 +124,24 @@ def safe_filename(path):
                    c in "_ -.").replace(" ", "_")
 
 
-def download_and_store(feed_url, path, link):
+def in_ignore(ignore_file: Text, link: Text) -> bool:
+    """Check if the downloaded part of an url (filename/basename)
+    is in the ignore file"""
+
+    url = urllib.parse.urlparse(link)
+
+    with open(ignore_file) as f:
+        ignored = [l.strip() for l in f.readlines()]
+
+        path = os.path.basename(url.path.strip())
+        if path in ignored:
+            LOGGER.warning("Ignoring {} based on {}".format(link, path))
+            return True
+
+    return False
+
+
+def download_and_store(feed_url, path, link, ignore):
     """Download and store a link. Storage defined in args"""
 
     if not os.path.isdir(path):
@@ -130,9 +150,9 @@ def download_and_store(feed_url, path, link):
 
     parsed = urllib.parse.urlparse(link)
     if parsed.netloc == 'github.com':
-         LOGGER.info("found github link. Modify to get raw content")
-         link = link.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/')
-         LOGGER.info("modified link: {0}".format(link))
+        LOGGER.info("found github link. Modify to get raw content")
+        link = link.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/')
+        LOGGER.info("modified link: {0}".format(link))
 
     headers = requests.utils.default_headers()
 
@@ -154,6 +174,9 @@ def download_and_store(feed_url, path, link):
         LOGGER.info("possible relative path %s, trying to append host: %s",
                     parsed.path, parsed_feed_url.netloc)
 
+    if in_ignore(ignore, link):
+        return
+
     req = requests.get(link,
                        headers=headers,
                        verify=False,
@@ -164,12 +187,10 @@ def download_and_store(feed_url, path, link):
         LOGGER.info("Status %s - %s", req.status_code, link)
         return
 
+
     url = urllib.parse.urlparse(link)
     fname = os.path.join(path, safe_filename(os.path.basename(url.path)))
-    with open("/opt/scio_feeds/ignore.txt") as f:
-        ignored = [l.strip() for l in f.readlines()]
-        if fname in ignored:
-            return
+
     with open(fname, "wb") as download_file:
         LOGGER.info("Writing %s", fname)
         req.raw.decode_content = True
@@ -189,15 +210,15 @@ def check_links(feed_url, args, links):
         try:
             link_lower = link.lower()
             if args.download_pdf and ".pdf" in link_lower:
-                download_and_store(feed_url, args.pdf_store, link)
+                download_and_store(feed_url, args.pdf_store, link, args.ignore)
             if args.download_doc and ".doc" in link_lower:
-                download_and_store(feed_url, args.doc_store, link)
+                download_and_store(feed_url, args.doc_store, link, args.ignore)
             if args.download_xls and ".xls" in link_lower:
-                download_and_store(feed_url, args.xls_store, link)
+                download_and_store(feed_url, args.xls_store, link, args.ignore)
             if args.download_xml and ".xml" in link_lower:
-                download_and_store(feed_url, args.xml_store, link)
+                download_and_store(feed_url, args.xml_store, link, args.ignore)
             if args.download_csv and contains_one_of(link_lower, [".csv", ".txt", ".json"]):
-                download_and_store(feed_url, args.csv_store, link)
+                download_and_store(feed_url, args.csv_store, link, args.ignore)
         except Exception as exc:  # pylint: disable=W0703
             LOGGER.error('%r generated an exception: %s', link, exc)
             exc_info = (type(exc), exc, exc.__traceback__)
@@ -238,12 +259,18 @@ def partial_entry_text_to_file(args, entry):
 
     url = entry["link"]
 
+    if in_ignore(ignore, url):
+        return None, None
+
     req = requests.get(url, headers=headers, verify=False, timeout=60)
 
     if req.status_code >= 400:
         return None, None
 
     filename = safe_filename(entry['title'])
+
+    if in_ignore(ignore, filename):
+        return None, None
 
     html_data = "<html_data>\n<head>\n"
     html_data += "<title>{0}</title>\n</head>\n".format(entry['title'])
