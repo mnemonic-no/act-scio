@@ -133,17 +133,23 @@ def in_ignore(ignore_file: Text, storage_path: Text, link: Text) -> bool:
                          safe_filename(os.path.basename(url.path)))
     with open(ignore_file) as f:
         ignored = [l.strip() for l in f.readlines()]
-        if fname == ignored:
-            LOGGER.info("Ignoring {} based on {}".format(link, fname))
+
+        if fname in ignored:
+            print(fname)
+            LOGGER.warning("Ignoring {} based on {}".format(link, fname))
             return True
-        path = url.path.strip()
-        if path == ignored:
-            LOGGER.info("Ignoring {} based on {}".format(link, path))
+        path = os.path.basename(url.path.strip())
+        if "malware" in path:
+            print("Checking", path)
+        if path in ignored:
+            print("Ignoring", path)
+            LOGGER.warning("Ignoring {} based on {}".format(link, path))
             return True
+
     return False
 
 
-def download_and_store(feed_url, path, link):
+def download_and_store(args, feed_url, path, link):
     """Download and store a link. Storage defined in args"""
 
     if not os.path.isdir(path):
@@ -176,6 +182,9 @@ def download_and_store(feed_url, path, link):
         LOGGER.info("possible relative path %s, trying to append host: %s",
                     parsed.path, parsed_feed_url.netloc)
 
+    if in_ignore(args.ignore, path, link):
+        return
+
     req = requests.get(link,
                        headers=headers,
                        verify=False,
@@ -186,8 +195,6 @@ def download_and_store(feed_url, path, link):
         LOGGER.info("Status %s - %s", req.status_code, link)
         return
 
-    if in_ignore("/opt/scio_feeds/ignore.txt", path, link):
-        return
 
     url = urllib.parse.urlparse(link)
     fname = os.path.join(path, safe_filename(os.path.basename(url.path)))
@@ -211,15 +218,15 @@ def check_links(feed_url, args, links):
         try:
             link_lower = link.lower()
             if args.download_pdf and ".pdf" in link_lower:
-                download_and_store(feed_url, args.pdf_store, link)
+                download_and_store(args, feed_url, args.pdf_store, link)
             if args.download_doc and ".doc" in link_lower:
-                download_and_store(feed_url, args.doc_store, link)
+                download_and_store(args, feed_url, args.doc_store, link)
             if args.download_xls and ".xls" in link_lower:
-                download_and_store(feed_url, args.xls_store, link)
+                download_and_store(args, feed_url, args.xls_store, link)
             if args.download_xml and ".xml" in link_lower:
-                download_and_store(feed_url, args.xml_store, link)
+                download_and_store(args, feed_url, args.xml_store, link)
             if args.download_csv and contains_one_of(link_lower, [".csv", ".txt", ".json"]):
-                download_and_store(feed_url, args.csv_store, link)
+                download_and_store(args, feed_url, args.csv_store, link)
         except Exception as exc:  # pylint: disable=W0703
             LOGGER.error('%r generated an exception: %s', link, exc)
             exc_info = (type(exc), exc, exc.__traceback__)
@@ -269,6 +276,9 @@ def partial_entry_text_to_file(args, entry):
         return None, None
 
     filename = safe_filename(entry['title'])
+
+    if in_ignore(args.ignore, args.doc_store, filename):
+        return None, None
 
     html_data = "<html_data>\n<head>\n"
     html_data += "<title>{0}</title>\n</head>\n".format(entry['title'])
