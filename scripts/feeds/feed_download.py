@@ -124,19 +124,15 @@ def safe_filename(path: Text) -> Text:
                    c in "_ -.").replace(" ", "_")
 
 
-def in_ignore(ignore_file: Text, storage_path: Text, link: Text) -> bool:
+def in_ignore(ignore_file: Text, link: Text) -> bool:
     """Check if the downloaded part of an url (filename/basename)
     is in the ignore file"""
 
     url = urllib.parse.urlparse(link)
-    fname = os.path.join(storage_path,
-                         safe_filename(os.path.basename(url.path)))
+
     with open(ignore_file) as f:
         ignored = [l.strip() for l in f.readlines()]
 
-        if fname in ignored:
-            LOGGER.warning("Ignoring {} based on {}".format(link, fname))
-            return True
         path = os.path.basename(url.path.strip())
         if path in ignored:
             LOGGER.warning("Ignoring {} based on {}".format(link, path))
@@ -145,7 +141,7 @@ def in_ignore(ignore_file: Text, storage_path: Text, link: Text) -> bool:
     return False
 
 
-def download_and_store(args, feed_url, path, link):
+def download_and_store(feed_url, path, link, ignore):
     """Download and store a link. Storage defined in args"""
 
     if not os.path.isdir(path):
@@ -154,9 +150,9 @@ def download_and_store(args, feed_url, path, link):
 
     parsed = urllib.parse.urlparse(link)
     if parsed.netloc == 'github.com':
-         LOGGER.info("found github link. Modify to get raw content")
-         link = link.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/')
-         LOGGER.info("modified link: {0}".format(link))
+        LOGGER.info("found github link. Modify to get raw content")
+        link = link.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/')
+        LOGGER.info("modified link: {0}".format(link))
 
     headers = requests.utils.default_headers()
 
@@ -178,7 +174,7 @@ def download_and_store(args, feed_url, path, link):
         LOGGER.info("possible relative path %s, trying to append host: %s",
                     parsed.path, parsed_feed_url.netloc)
 
-    if in_ignore(args.ignore, path, link):
+    if in_ignore(ignore, link):
         return
 
     req = requests.get(link,
@@ -214,15 +210,15 @@ def check_links(feed_url, args, links):
         try:
             link_lower = link.lower()
             if args.download_pdf and ".pdf" in link_lower:
-                download_and_store(args, feed_url, args.pdf_store, link)
+                download_and_store(feed_url, args.pdf_store, link, args.ignore)
             if args.download_doc and ".doc" in link_lower:
-                download_and_store(args, feed_url, args.doc_store, link)
+                download_and_store(feed_url, args.doc_store, link, args.ignore)
             if args.download_xls and ".xls" in link_lower:
-                download_and_store(args, feed_url, args.xls_store, link)
+                download_and_store(feed_url, args.xls_store, link, args.ignore)
             if args.download_xml and ".xml" in link_lower:
-                download_and_store(args, feed_url, args.xml_store, link)
+                download_and_store(feed_url, args.xml_store, link, args.ignore)
             if args.download_csv and contains_one_of(link_lower, [".csv", ".txt", ".json"]):
-                download_and_store(args, feed_url, args.csv_store, link)
+                download_and_store(feed_url, args.csv_store, link, args.ignore)
         except Exception as exc:  # pylint: disable=W0703
             LOGGER.error('%r generated an exception: %s', link, exc)
             exc_info = (type(exc), exc, exc.__traceback__)
@@ -263,7 +259,7 @@ def partial_entry_text_to_file(args, entry):
 
     url = entry["link"]
 
-    if in_ignore(args.ignore, args.doc_store, url):
+    if in_ignore(ignore, url):
         return None, None
 
     req = requests.get(url, headers=headers, verify=False, timeout=60)
@@ -273,7 +269,7 @@ def partial_entry_text_to_file(args, entry):
 
     filename = safe_filename(entry['title'])
 
-    if in_ignore(args.ignore, args.doc_store, filename):
+    if in_ignore(ignore, filename):
         return None, None
 
     html_data = "<html_data>\n<head>\n"
