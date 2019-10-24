@@ -258,9 +258,10 @@ def main(args):
             if candidate.uploadable():
                 with open(candidate.filename, "rb") as file_h:
                     post_data = to_scio_submit_post_data(file_h, candidate.filename)
+                    my_metadata.update(post_data)
                     session = requests.Session()
                     session.trust_env = False
-                    session.post(args.scio, json=post_data)
+                    session.post(args.scio, json=my_metadata)
             else:
                 LOGGER.info("Not uploading %s (wrong mimetype)", candidate.filename) # NOQA
 
