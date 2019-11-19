@@ -17,7 +17,7 @@ Optionally replace scio with the user that will run the scripts in the `chown` c
 ```bash
 cp -r scripts/feeds /opt/scio_feeds
 mkdir /opt/auto_report_download
-chown -R scio
+chown -R scio /opt/auto_report_download /opt/scio_feeds
 ```
 
 ### Add to cron (for the same user owning the files in /opt/scio_feeds)
