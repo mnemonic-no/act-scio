@@ -2,6 +2,38 @@
 
 Downloads both full and partial feeds, as well as downloads any pdf,doc,xls,csv,txt,json,xml files that are refereneced in the feed.
 
+## Installation
+
+### Install requirements
+
+```bash
+pip install requests justext urllib3 feedparser bs4
+```
+
+### Copy all scripts to /opt/scio_feeds
+
+Optionally replace scio with the user that will run the scripts in the `chown` command.
+
+```bash
+cp -r scripts/feeds /opt/scio_feeds
+mkdir /opt/auto_report_download
+chown -R scio
+```
+
+### Add to cron (for the same user owning the files in /opt/scio_feeds)
+
+Feeds
+
+```bash
+0 * * * * * /opt/scio_feeds/run-feeds.sh
+```
+
+Report repositories (optionally)
+
+```bash
+0 5 * * * * /opt/scio_feeds/run-reports.sh
+```
+
 ## Add feed
 
 ### If it is a full feed (the entire body of information is accessible in the RSS/Atom feed)
