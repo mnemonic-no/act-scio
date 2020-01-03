@@ -28,10 +28,12 @@ import json
 import logging
 import os.path
 import shutil
-import sys
 import time
 import urllib.parse
 import urllib.request
+
+from typing import Text, List
+
 import urllib3
 
 import justext
@@ -39,7 +41,6 @@ import requests
 import feedparser
 from bs4 import BeautifulSoup
 
-from typing import Text, List
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -116,12 +117,21 @@ def create_html(entry):
 
 def safe_filename(path: Text) -> Text:
     """Make filename safe by only allowing alpha numeric characters,
-    digits and ._-"""
+    digits and ._- and replace whitespace with underscore """
 
-    return "".join(c for c in path
-                   if c.isalpha() or
-                   c.isdigit() or
-                   c in "_ -.").replace(" ", "_")
+    file_name = ""
+    for char in path.strip():
+        if char.isalpha() or char.isdigit():
+            file_name += char
+            continue
+        if char.isspace():
+            file_name += "_"
+            continue
+        if char in "_-.":
+            file_name += char
+            continue
+
+    return file_name
 
 
 def in_ignore(ignore_file: Text, link: Text) -> bool:
@@ -130,13 +140,13 @@ def in_ignore(ignore_file: Text, link: Text) -> bool:
 
     url = urllib.parse.urlparse(link)
 
-    with open(ignore_file) as f:
-        ignored = [l.strip() for l in f.readlines()]
+    with open(ignore_file) as file_h:
+        ignored = [l.strip() for l in file_h.readlines()]
 
-        path = os.path.basename(url.path.strip())
-        if path in ignored:
-            LOGGER.warning("Ignoring {} based on {}".format(link, path))
-            return True
+    base_name = os.path.basename(url.path.strip())
+    if base_name in ignored:
+        LOGGER.warning("Ignoring %s based on %s", link, base_name)
+        return True
 
     return False
 
@@ -152,7 +162,7 @@ def download_and_store(feed_url, path, link, ignore):
     if parsed.netloc == 'github.com':
         LOGGER.info("found github link. Modify to get raw content")
         link = link.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/')
-        LOGGER.info("modified link: {0}".format(link))
+        LOGGER.info("modified link: %s", link)
 
     headers = requests.utils.default_headers()
 
@@ -187,7 +197,6 @@ def download_and_store(feed_url, path, link, ignore):
         LOGGER.info("Status %s - %s", req.status_code, link)
         return
 
-
     url = urllib.parse.urlparse(link)
     fname = os.path.join(path, safe_filename(os.path.basename(url.path)))
 
@@ -197,9 +206,9 @@ def download_and_store(feed_url, path, link, ignore):
         shutil.copyfileobj(req.raw, download_file)
 
 
-def contains_one_of(s: Text, mylist: List[Text]) -> bool:
-    """Check if one of the substrings in mylist is in s"""
-    return any([e in s for e in mylist])
+def contains_one_of(mystring: Text, mylist: List[Text]) -> bool:
+    """Check if one of the strings in mylist is as substring of mystring"""
+    return any([e in mystring for e in mylist])
 
 
 def check_links(feed_url, args, links):
@@ -240,7 +249,7 @@ def get_feed(feed_url):
 
     req = requests.get(feed_url, headers=headers, verify=False, timeout=60)
 
-    return feedparser.parse(req.text)
+    return feedparser.parse(req.text.strip())
 
 
 def partial_entry_text_to_file(args, entry):
@@ -259,7 +268,7 @@ def partial_entry_text_to_file(args, entry):
 
     url = entry["link"]
 
-    if in_ignore(ignore, url):
+    if in_ignore(args.ignore, url):
         return None, None
 
     req = requests.get(url, headers=headers, verify=False, timeout=60)
@@ -269,7 +278,7 @@ def partial_entry_text_to_file(args, entry):
 
     filename = safe_filename(entry['title'])
 
-    if in_ignore(ignore, filename):
+    if in_ignore(args.ignore, filename):
         return None, None
 
     html_data = "<html_data>\n<head>\n"
@@ -347,7 +356,7 @@ def create_entry_meta_file(args, filename, feed_title, entry, my_info):
             "source": feed_title,
             "creation-date": creation_date.isoformat(),
             "title": entry["title"],
-            }
+        }
         data.update(my_info)
         json.dump(data, fp=meta_file, indent=4)
 
@@ -419,13 +428,13 @@ def parse_feed_file(filename):
 
     for linenum, feed_line in enumerate(open(filename)):
         if len(feed_line) < 2:
-            sys.stderr.write("line {0} to short".format(linenum+1))
+            LOGGER.error("Parsing feed-file. Line %s is to short", linenum + 1)
         elif feed_line[:2] == "f ":
             full_feeds.append(feed_line[2:].strip())
         elif feed_line[:2] == "p ":
             partial_feeds.append(feed_line[2:].strip())
         else:
-            sys.stderr.write("line ({0}), '{1}' is not a valid type [fp]\n".format(linenum+1, feed_line[0])) # NOQA
+            LOGGER.error("line (%s), '%s', is not a vlid type [fp]", linenum + 1, feed_line[0])
 
     return full_feeds, partial_feeds
 
@@ -479,7 +488,7 @@ if __name__ == "__main__":
     if ARGS.log:
         LOGCFG['filename'] = ARGS.log
 
-    logging.basicConfig(**LOGCFG)
+    logging.basicConfig(**LOGCFG)  # type: ignore
     try:
         main(ARGS)
     except IOError as err:

@@ -2,6 +2,16 @@
 
 Downloads both full and partial feeds, as well as downloads any pdf,doc,xls,csv,txt,json,xml files that are refereneced in the feed.
 
+## Release Notes
+
+### Jan. 5 2020
+
+#### Deprecated
+
+The download ignore file now only consider the basename of the url. Before it
+also checked the storage location + filename. This change simplifies code and
+makes it more intuitive what the ignore file does.
+
 ## Installation
 
 ### Install requirements
