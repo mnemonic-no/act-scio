@@ -1,0 +1,5 @@
+p http://example.com/partial_feed1.rss
+p http://example.com/partial_feed2.rss
+f http://example.com/feed1.rss
+f http://example.com/feed2.rss
+
