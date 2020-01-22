@@ -35,6 +35,6 @@ $BASE/upload.py \
 
 for dir in pdf doc xls csv xml; do
     for file_name in `$BASE/submitcache.py -c $BASE/submitcache.db -a $BASE/$dir` ; do
-        $SCIODIR/submit.py $SUBMIT $file_name
+        $BASE/submit.py $SUBMIT $file_name
     done
 done
