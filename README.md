@@ -51,6 +51,12 @@ mkdir -p /opt/scio/documents
 cp -r etc vendor /opt/scio
 ```
 
+Change ownership of documents to the user running scio:
+
+```bash
+chown -R scio /opt/scio/documents
+```
+
 ### To build
 
 ```bash
