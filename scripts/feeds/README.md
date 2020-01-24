@@ -17,7 +17,7 @@ makes it more intuitive what the ignore file does.
 ### Install requirements
 
 ```bash
-pip install requests justext urllib3 feedparser bs4
+pip install requests justext urllib3 feedparser bs4 python-magic
 ```
 
 ### Copy all scripts to /opt/scio_feeds
@@ -35,13 +35,13 @@ chown -R scio /opt/auto_report_download /opt/scio_feeds
 Feeds
 
 ```bash
-0 * * * * * /opt/scio_feeds/run-feeds.sh
+0 * * * * /opt/scio_feeds/run-feeds.sh
 ```
 
 Report repositories (optionally)
 
 ```bash
-0 5 * * * * /opt/scio_feeds/run-reports.sh
+0 5 * * * /opt/scio_feeds/run-reports.sh
 ```
 
 ## Add feed
@@ -57,5 +57,3 @@ Add a line to feeds.txt starting with 'p' (for partial), then a space and then t
 ### Ignore a file from download
 
 Add the full path of the file to ignore.txt
-
-

@@ -3,7 +3,7 @@ Description=SCIO backend service
 [Service]
 User=scio
 LimitCORE=0
-ExecStart=/usr/bin/java -Xmx6G -jar /opt/scio/scio-back-latest-standalone.jar
+ExecStart=/usr/bin/java -Xmx6G -jar /opt/scio/scio-back-latest-standalone.jar -c /opt/scio/etc/scio.ini
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=scio
