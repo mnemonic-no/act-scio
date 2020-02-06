@@ -31,7 +31,12 @@ base=`pwd`
 IFS=$"\n"
 
 /opt/scio_feeds/submitcache.py -c /opt/auto_report_download/cache.db -a APT_CyberCriminal_Campagin_Collections threat-INTel |  while read FILE; do
-	echo -n "."
+
+    if [ -t 1 ]
+    then
+        # Interactive - output dot for each file if we have a tty
+        echo -n "."
+    fi
 
 	# Strip away .git directory files
 	echo $FILE | grep ".git" > /dev/null
@@ -39,7 +44,12 @@ IFS=$"\n"
 	if [ $res == 0 ]; then
 		continue
 	fi
-	echo "$base/$FILE"
+
+    if [ -t 1 ]
+    then
+        # Interactive - output file name if we have a tty
+        echo "$base/$FILE"
+    fi
 
 	/opt/scio_feeds/submit.py "$SUBMIT" "$base/$FILE"
 done

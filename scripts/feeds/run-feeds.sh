@@ -22,13 +22,13 @@ $BASE/feed_download.py \
 --download_xls --xls_store $BASE/xls \
 --download_csv --csv_store $BASE/csv \
 --download_xml --xml_store $BASE/xml \
---log $BASE/log/feed_download.log \
+--log $BASE/log/feed_download-$(date +'%Y-%m-%d').log \
 --output $BASE/download --meta $BASE/download \
 --feeds $BASE/feeds.txt \
 --verbose
 
 $BASE/upload.py \
---log $BASE/log/upload.log \
+--log $BASE/log/upload-$(date +'%Y-%m-%d').log \
 --cache $BASE/upload.db \
 --debug $BASE/download \
 --scio $SUBMIT
