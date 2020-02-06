@@ -44,7 +44,12 @@ IFS=$"\n"
 	if [ $res == 0 ]; then
 		continue
 	fi
-	echo "$base/$FILE"
+
+    if [ -t 1 ]
+    then
+        # Interactive - output file name if we have a tty
+        echo "$base/$FILE"
+    fi
 
 	/opt/scio_feeds/submit.py "$SUBMIT" "$base/$FILE"
 done
