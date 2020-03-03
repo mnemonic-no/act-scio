@@ -1,10 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import json
-import beanstalkc
+import greenstalk
 import sys
 
-conn = beanstalkc.Connection()
+conn = greenstalk.Client()
+
 conn.use("doc")
 try:
     for filename in sys.argv[1:]:
