@@ -1,3 +1,4 @@
+[Unit]
 Description=SCIO backend service
 
 [Service]
