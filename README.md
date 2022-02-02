@@ -1,5 +1,9 @@
 # act-scio
 
+## DEPRECATED
+
+This reposistory is deprecated. The project is reimplemented in python and development is moved to [https://github.com/mnemonic-no/act-scio2](https://github.com/mnemonic-no/act-scio2).
+
 ## Requirements
 
 SCIO requires a working clojure environment to build and beanstalkd/java to run.
